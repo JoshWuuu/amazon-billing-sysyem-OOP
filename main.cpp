@@ -17,7 +17,7 @@ class shopping
         void buyer();
         void add();
         void edit();
-        void remove();
+        void rem();
         void list();
         void receipt();
 
@@ -96,7 +96,7 @@ void shopping::admin()
             break;
         
         case 3:
-            remove();
+            rem();
             break;
         
         case 4:
@@ -137,7 +137,6 @@ void shopping:: buyer()
 
 void shopping::add() 
 {
-    m:
     fstream data;
     int c;
     int token = 0;
@@ -176,17 +175,17 @@ void shopping::add()
         } 
 
         data.close();
-    }
+    
 
-    if (token==1) {
-        goto m;
-    } else {
-        data.open("data.txt", ios::app|ios::out);
-        data << pcode << " " << pname << " " << price << " " << dis << endl;
-        data.close();
+        if (token==1) {
+            cout << "\t\t\t Product code already exists" << endl;
+        } else {
+            data.open("data.txt", ios::app|ios::out);
+            data << pcode << " " << pname << " " << price << " " << dis << endl;
+            data.close();
+            cout << "\t\t\t Product added successfully!" << endl;
+        }
     }
-
-    cout << "\t\t\t Product added successfully!" << endl;
 }
 
 void shopping::edit() 
@@ -207,7 +206,7 @@ void shopping::edit()
         data1.open("data1.txt", ios::app|ios::out);
         data >> c >> n >> p >> d;
         while (!data.eof()) {
-            if (pkey==p) {
+            if (pkey==c) {
                 cout << "\t\t\t Enter product new code: ";
                 cin >> pcode;
                 cout << "\t\t\t Enter product name: ";
@@ -236,7 +235,7 @@ void shopping::edit()
     }
 }
 
-void shopping::remove() 
+void shopping::rem() 
 {
     fstream data, data1;
     int pkey, token= 0, c;
@@ -254,7 +253,7 @@ void shopping::remove()
         data1.open("data1.txt", ios::app|ios::out);
         data >> c >> n >> p >> d;
         while (!data.eof()) {
-            if (pkey==p) {
+            if (pkey==c) {
                 cout << "\t\t\t Record deleted successfully!" << endl;
                 token++;
             } else {
@@ -274,7 +273,74 @@ void shopping::remove()
     }
 }
 
-void shopping::add() 
+void shopping::list() 
 {
-    
+    fstream data;
+    data.open("data.txt", ios::in);
+    cout << "\t\t\t Product code\t\t\t Product name\t\t\t Product price\t\t\t Product discount" << endl;
+    data >> pcode >> pname >> price >> dis;
+    while (!data.eof()) {
+        cout << "\t\t\t " << pcode << "\t\t\t\t " << pname << "\t\t\t\t " << price << "\t\t\t\t " << dis << endl;
+        data >> pcode >> pname >> price >> dis;
+    }
+    data.close();
+}
+
+void shopping::receipt() 
+{
+    fstream data;
+    int arrc[100], arrq[100];
+    char choice;
+    int c=0;
+    float amount=0, total=0, dis=0;
+
+    cout << "\n\n\t\t\t RECEIPT" << endl;
+    data.open("data.txt", ios::in);
+    if (!data) {
+        cout << "\t\t\t File not found" << endl;
+    }   else {
+        data.close();
+
+        list();
+        cout << "\t\t\t Please place the order" << endl;
+
+        do {
+            cout << "\t\t\t Enter product code: ";
+            cin >> arrc[c];
+            cout << "\t\t\t Enter product quantity: ";
+            cin >> arrq[c];
+            for (int i=0; i<c; i++) {
+                if (arrc[c] == arrc[i]) {
+                    cout << "\t\t\t Product already ordered" << endl;
+                    c--;
+                }
+            }
+            c++;
+            cout << "\t\t\t Do you want to place another order? (y/n): ";
+            cin >> choice;
+        } while (choice=='y' || choice=='Y');
+
+        for (int i=0; i<c; i++) {
+            data.open("data.txt", ios::in);
+            data >> pcode >> pname >> price >> dis;
+            while (!data.eof()) {
+                if (arrc[i]==pcode) {
+                    amount = (price*arrq[i]) - ((price*arrq[i])*dis/100);
+                    cout << "\t\t\t " << pname << "\t\t\t\t " << price << "\t\t\t\t " << arrq[i] << "\t\t\t\t " << amount << endl;
+                    total += amount;
+                    break;
+                }
+                data >> pcode >> pname >> price >> dis;
+            }
+            data.close();
+        }
+
+        cout << "\t\t\t Total amount: " << total << endl;
+    }
+}
+
+int main() 
+{
+    shopping s;
+    s.menu();
 }
